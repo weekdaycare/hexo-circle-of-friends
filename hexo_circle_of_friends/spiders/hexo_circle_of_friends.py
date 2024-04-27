@@ -57,7 +57,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                 self.friend_poor.put(li)
         # 向gitee发送请求获取友链
         if self.settings["GITEE_FRIENDS_LINKS"]["enable"]:
-            for number in range(1, 100):
+            for number in range(1, 10):
                 domain = 'https://gitee.com'
                 dic = self.settings["GITEE_FRIENDS_LINKS"]
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + '/issues?state=' + dic[
