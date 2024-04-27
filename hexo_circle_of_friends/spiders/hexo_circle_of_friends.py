@@ -65,7 +65,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                 yield Request(url, callback=self.friend_poor_parse, meta={"gitee": {"domain": domain}})
         # 向github发送请求获取友链
         if self.settings["GITHUB_FRIENDS_LINKS"]["enable"]:
-            for number in range(1, 100):
+            for number in range(1, 10):
                 domain = 'https://github.com'
                 dic = self.settings["GITHUB_FRIENDS_LINKS"]
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + "/issues?page=" + str(number) + '&q=is%3A' + dic[
