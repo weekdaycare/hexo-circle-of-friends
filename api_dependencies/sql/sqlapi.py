@@ -35,7 +35,7 @@ async def vercel_update_db():
                                 get_b64encoded_data(data), message)
 
 
-def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
+def query_all(columns, start: int = 0, end: int = -1, rule: str = "updated"):
     session = db_interface.db_init()
     article_num = session.query(Post).count()
     # 检查start、end的合法性
@@ -43,36 +43,36 @@ def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     if message:
         return {"message": message}
     # 检查rule的合法性
-    if rule != "created" and rule != "updated":
+    if rule != "created" && rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
 
     posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
-    last_update_time = session.query(Post).limit(1000).with_entities(Post.createAt).all()
-    last_update_time = max(x["createAt"].strftime("%Y-%m-%d %H:%M:%S") for x in last_update_time)
+    last_update_times = session.query(Post.createAt).limit(1000).all()
+    last_update_time = max(x[0].strftime("%Y-%m-%d %H:%M:%S") for x in last_update_times)
 
     friends_num = session.query(Friend).count()
     active_num = session.query(Friend).filter_by(error=False).count()
     error_num = friends_num - active_num
 
-    data = {}
-    data['statistical_data'] = {
-        'friends_num': friends_num,
-        'active_num': active_num,
-        'error_num': error_num,
-        'article_num': article_num,
-        'last_updated_time': last_update_time
+    data = {
+        'statistical_data': {
+            'friends_num': friends_num,
+            'active_num': active_num,
+            'error_num': error_num,
+            'article_num': article_num,
+            'last_updated_time': last_update_time
+        },
+        'article_data': []
     }
 
-    post_data = []
-    for k in range(len(posts)):
-        item = {'floor': start + k + 1}
-        for elem in li:
-            item[elem] = getattr(posts[k], elem)
-        post_data.append(item)
+    for k, post in enumerate(posts, start=start + 1):
+        item = {'floor': k}
+        for elem in columns:
+            item[elem] = getattr(post, elem)
+        data['article_data'].append(item)
+    
     session.close()
-    data['article_data'] = post_data
     return data
-
 
 def query_friend():
     session = db_interface.db_init()
