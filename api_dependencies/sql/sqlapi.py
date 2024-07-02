@@ -43,7 +43,7 @@ def query_all(columns, start: int = 0, end: int = -1, rule: str = "updated"):
     if message:
         return {"message": message}
     # 检查rule的合法性
-    if rule != "created" && rule != "updated":
+    if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
 
     posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
